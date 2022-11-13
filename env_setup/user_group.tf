@@ -50,18 +50,23 @@ resource "aws_iam_user" "user_one" {
   name = "kops"
 }
 
-# resource "aws_iam_access_key" "access_key" {
-#   user = aws_iam_user.user_one.name
-# }
+resource "aws_s3_bucket" "a" {
+  bucket = "jin-k8s-com-state-store"
 
-# output "access_key_id" {
-#   value = aws_iam_access_key.access_key.id
-# }
+  versioning {
+    enabled = true
+  }
+}
 
-# data "template_file" "secret" {
-#   template = aws_iam_access_key.access_key.encrypted_secret
-# }
-
-# output "access_key_secret" {
-#   value = data.template_file.secret.rendered
-# }
+resource "aws_s3_bucket" "b" {
+  bucket = "jin-k8s-com-oicd-store"
+  acl    = "public-read"
+  
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "AES256"
+      }
+    }
+  }
+}
