@@ -51,3 +51,12 @@ ssh admin@i-0175b1819c10720a4
 
 kops delete cluster --name ${NAME} --yes
 
+# Verify you have an SSH agent running. This should match whatever you built your cluster with.
+ssh-add -l
+# If you need to add the key to your agent:
+ssh-add path/to/private/key
+
+# Now you can SSH into the bastion
+ssh -A admin@<bastion-ELB-address>
+
+# Where <bastion-ELB-address> is usually bastion.$clustername (bastion.example.kubernetes.cluster) unless otherwise specified
