@@ -1,8 +1,6 @@
 # k8s_aws
-ssh-keygen -t rsa -f ~/.ssh/k8s_key -P ""
 
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
+// ssh-keygen -t rsa -f ~/.ssh/k8s_key -P ""
 
 export AWS_PROFILE=k8s_profile
 export AWS_REGION=us-east-1
