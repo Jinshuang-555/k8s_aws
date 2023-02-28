@@ -1,4 +1,8 @@
 locals {
+  bastion_autoscaling_group_ids     = [aws_autoscaling_group.bastions-k8s-csye6225jinshuang-me.id]
+  bastion_security_group_ids        = [aws_security_group.bastion-k8s-csye6225jinshuang-me.id]
+  bastions_role_arn                 = aws_iam_role.bastions-k8s-csye6225jinshuang-me.arn
+  bastions_role_name                = aws_iam_role.bastions-k8s-csye6225jinshuang-me.name
   cluster_name                      = "k8s.csye6225jinshuang.me"
   master_autoscaling_group_ids      = [aws_autoscaling_group.master-us-east-1a-masters-k8s-csye6225jinshuang-me.id, aws_autoscaling_group.master-us-east-1b-masters-k8s-csye6225jinshuang-me.id, aws_autoscaling_group.master-us-east-1c-masters-k8s-csye6225jinshuang-me.id]
   master_security_group_ids         = [aws_security_group.masters-k8s-csye6225jinshuang-me.id]
@@ -20,8 +24,23 @@ locals {
   subnet_utility-us-east-1a_id      = aws_subnet.utility-us-east-1a-k8s-csye6225jinshuang-me.id
   subnet_utility-us-east-1b_id      = aws_subnet.utility-us-east-1b-k8s-csye6225jinshuang-me.id
   subnet_utility-us-east-1c_id      = aws_subnet.utility-us-east-1c-k8s-csye6225jinshuang-me.id
-  vpc_cidr_block                    = aws_vpc.k8s-csye6225jinshuang-me.cidr_block
-  vpc_id                            = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id                            = "vpc-09bc9e6d215acaf78"
+}
+
+output "bastion_autoscaling_group_ids" {
+  value = [aws_autoscaling_group.bastions-k8s-csye6225jinshuang-me.id]
+}
+
+output "bastion_security_group_ids" {
+  value = [aws_security_group.bastion-k8s-csye6225jinshuang-me.id]
+}
+
+output "bastions_role_arn" {
+  value = aws_iam_role.bastions-k8s-csye6225jinshuang-me.arn
+}
+
+output "bastions_role_name" {
+  value = aws_iam_role.bastions-k8s-csye6225jinshuang-me.name
 }
 
 output "cluster_name" {
@@ -108,12 +127,8 @@ output "subnet_utility-us-east-1c_id" {
   value = aws_subnet.utility-us-east-1c-k8s-csye6225jinshuang-me.id
 }
 
-output "vpc_cidr_block" {
-  value = aws_vpc.k8s-csye6225jinshuang-me.cidr_block
-}
-
 output "vpc_id" {
-  value = aws_vpc.k8s-csye6225jinshuang-me.id
+  value = "vpc-09bc9e6d215acaf78"
 }
 
 provider "aws" {
@@ -123,6 +138,57 @@ provider "aws" {
 provider "aws" {
   alias  = "files"
   region = "us-east-1"
+}
+
+resource "aws_autoscaling_group" "bastions-k8s-csye6225jinshuang-me" {
+  enabled_metrics = ["GroupDesiredCapacity", "GroupInServiceInstances", "GroupMaxSize", "GroupMinSize", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
+  launch_template {
+    id      = aws_launch_template.bastions-k8s-csye6225jinshuang-me.id
+    version = aws_launch_template.bastions-k8s-csye6225jinshuang-me.latest_version
+  }
+  load_balancers        = [aws_elb.bastion-k8s-csye6225jinshuang-me.id]
+  max_instance_lifetime = 0
+  max_size              = 1
+  metrics_granularity   = "1Minute"
+  min_size              = 1
+  name                  = "bastions.k8s.csye6225jinshuang.me"
+  protect_from_scale_in = false
+  tag {
+    key                 = "KubernetesCluster"
+    propagate_at_launch = true
+    value               = "k8s.csye6225jinshuang.me"
+  }
+  tag {
+    key                 = "Name"
+    propagate_at_launch = true
+    value               = "bastions.k8s.csye6225jinshuang.me"
+  }
+  tag {
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"
+    propagate_at_launch = true
+    value               = "bastions"
+  }
+  tag {
+    key                 = "k8s.io/cluster-autoscaler/node-template/label/node-role.kubernetes.io/node"
+    propagate_at_launch = true
+    value               = ""
+  }
+  tag {
+    key                 = "k8s.io/role/bastion"
+    propagate_at_launch = true
+    value               = "1"
+  }
+  tag {
+    key                 = "kops.k8s.io/instancegroup"
+    propagate_at_launch = true
+    value               = "bastions"
+  }
+  tag {
+    key                 = "kubernetes.io/cluster/k8s.csye6225jinshuang.me"
+    propagate_at_launch = true
+    value               = "owned"
+  }
+  vpc_zone_identifier = [aws_subnet.utility-us-east-1c-k8s-csye6225jinshuang-me.id]
 }
 
 resource "aws_autoscaling_group" "master-us-east-1a-masters-k8s-csye6225jinshuang-me" {
@@ -579,6 +645,41 @@ resource "aws_elb" "api-k8s-csye6225jinshuang-me" {
   }
 }
 
+resource "aws_elb" "bastion-k8s-csye6225jinshuang-me" {
+  health_check {
+    healthy_threshold   = 2
+    interval            = 10
+    target              = "TCP:22"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
+  idle_timeout = 300
+  listener {
+    instance_port     = 22
+    instance_protocol = "TCP"
+    lb_port           = 22
+    lb_protocol       = "TCP"
+  }
+  name            = "bastion-k8s-csye6225jinsh-g12p76"
+  security_groups = [aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id]
+  subnets         = [aws_subnet.utility-us-east-1a-k8s-csye6225jinshuang-me.id, aws_subnet.utility-us-east-1b-k8s-csye6225jinshuang-me.id, aws_subnet.utility-us-east-1c-k8s-csye6225jinshuang-me.id]
+  tags = {
+    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
+    "Name"                                           = "bastion.k8s.csye6225jinshuang.me"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+}
+
+resource "aws_iam_instance_profile" "bastions-k8s-csye6225jinshuang-me" {
+  name = "bastions.k8s.csye6225jinshuang.me"
+  role = aws_iam_role.bastions-k8s-csye6225jinshuang-me.name
+  tags = {
+    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
+    "Name"                                           = "bastions.k8s.csye6225jinshuang.me"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+}
+
 resource "aws_iam_instance_profile" "masters-k8s-csye6225jinshuang-me" {
   name = "masters.k8s.csye6225jinshuang.me"
   role = aws_iam_role.masters-k8s-csye6225jinshuang-me.name
@@ -595,6 +696,16 @@ resource "aws_iam_instance_profile" "nodes-k8s-csye6225jinshuang-me" {
   tags = {
     "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
     "Name"                                           = "nodes.k8s.csye6225jinshuang.me"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+}
+
+resource "aws_iam_role" "bastions-k8s-csye6225jinshuang-me" {
+  assume_role_policy = file("${path.module}/data/aws_iam_role_bastions.k8s.csye6225jinshuang.me_policy")
+  name               = "bastions.k8s.csye6225jinshuang.me"
+  tags = {
+    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
+    "Name"                                           = "bastions.k8s.csye6225jinshuang.me"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
   }
 }
@@ -619,6 +730,12 @@ resource "aws_iam_role" "nodes-k8s-csye6225jinshuang-me" {
   }
 }
 
+resource "aws_iam_role_policy" "bastions-k8s-csye6225jinshuang-me" {
+  name   = "bastions.k8s.csye6225jinshuang.me"
+  policy = file("${path.module}/data/aws_iam_role_policy_bastions.k8s.csye6225jinshuang.me_policy")
+  role   = aws_iam_role.bastions-k8s-csye6225jinshuang-me.name
+}
+
 resource "aws_iam_role_policy" "masters-k8s-csye6225jinshuang-me" {
   name   = "masters.k8s.csye6225jinshuang.me"
   policy = file("${path.module}/data/aws_iam_role_policy_masters.k8s.csye6225jinshuang.me_policy")
@@ -631,15 +748,6 @@ resource "aws_iam_role_policy" "nodes-k8s-csye6225jinshuang-me" {
   role   = aws_iam_role.nodes-k8s-csye6225jinshuang-me.name
 }
 
-resource "aws_internet_gateway" "k8s-csye6225jinshuang-me" {
-  tags = {
-    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
-    "Name"                                           = "k8s.csye6225jinshuang.me"
-    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
-  }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
-}
-
 resource "aws_key_pair" "kubernetes-k8s-csye6225jinshuang-me-0180cbad6df03179399606122c3e1896" {
   key_name   = "kubernetes.k8s.csye6225jinshuang.me-01:80:cb:ad:6d:f0:31:79:39:96:06:12:2c:3e:18:96"
   public_key = file("${path.module}/data/aws_key_pair_kubernetes.k8s.csye6225jinshuang.me-0180cbad6df03179399606122c3e1896_public_key")
@@ -647,6 +755,78 @@ resource "aws_key_pair" "kubernetes-k8s-csye6225jinshuang-me-0180cbad6df03179399
     "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
     "Name"                                           = "k8s.csye6225jinshuang.me"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+}
+
+resource "aws_launch_template" "bastions-k8s-csye6225jinshuang-me" {
+  block_device_mappings {
+    device_name = "/dev/sda1"
+    ebs {
+      delete_on_termination = true
+      encrypted             = true
+      iops                  = 3000
+      throughput            = 125
+      volume_size           = 32
+      volume_type           = "gp3"
+    }
+  }
+  iam_instance_profile {
+    name = aws_iam_instance_profile.bastions-k8s-csye6225jinshuang-me.id
+  }
+  image_id      = "ami-0778521d914d23bc1"
+  instance_type = "t3.micro"
+  key_name      = aws_key_pair.kubernetes-k8s-csye6225jinshuang-me-0180cbad6df03179399606122c3e1896.id
+  lifecycle {
+    create_before_destroy = true
+  }
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_protocol_ipv6          = "disabled"
+    http_put_response_hop_limit = 1
+    http_tokens                 = "optional"
+  }
+  monitoring {
+    enabled = false
+  }
+  name = "bastions.k8s.csye6225jinshuang.me"
+  network_interfaces {
+    associate_public_ip_address = true
+    delete_on_termination       = true
+    ipv6_address_count          = 0
+    security_groups             = [aws_security_group.bastion-k8s-csye6225jinshuang-me.id]
+  }
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      "KubernetesCluster"                                                          = "k8s.csye6225jinshuang.me"
+      "Name"                                                                       = "bastions.k8s.csye6225jinshuang.me"
+      "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"    = "bastions"
+      "k8s.io/cluster-autoscaler/node-template/label/node-role.kubernetes.io/node" = ""
+      "k8s.io/role/bastion"                                                        = "1"
+      "kops.k8s.io/instancegroup"                                                  = "bastions"
+      "kubernetes.io/cluster/k8s.csye6225jinshuang.me"                             = "owned"
+    }
+  }
+  tag_specifications {
+    resource_type = "volume"
+    tags = {
+      "KubernetesCluster"                                                          = "k8s.csye6225jinshuang.me"
+      "Name"                                                                       = "bastions.k8s.csye6225jinshuang.me"
+      "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"    = "bastions"
+      "k8s.io/cluster-autoscaler/node-template/label/node-role.kubernetes.io/node" = ""
+      "k8s.io/role/bastion"                                                        = "1"
+      "kops.k8s.io/instancegroup"                                                  = "bastions"
+      "kubernetes.io/cluster/k8s.csye6225jinshuang.me"                             = "owned"
+    }
+  }
+  tags = {
+    "KubernetesCluster"                                                          = "k8s.csye6225jinshuang.me"
+    "Name"                                                                       = "bastions.k8s.csye6225jinshuang.me"
+    "k8s.io/cluster-autoscaler/node-template/label/kops.k8s.io/instancegroup"    = "bastions"
+    "k8s.io/cluster-autoscaler/node-template/label/node-role.kubernetes.io/node" = ""
+    "k8s.io/role/bastion"                                                        = "1"
+    "kops.k8s.io/instancegroup"                                                  = "bastions"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me"                             = "owned"
   }
 }
 
@@ -1120,13 +1300,13 @@ resource "aws_nat_gateway" "us-east-1c-k8s-csye6225jinshuang-me" {
 
 resource "aws_route" "route-0-0-0-0--0" {
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.k8s-csye6225jinshuang-me.id
+  gateway_id             = "igw-00b0568d26ade0f60"
   route_table_id         = aws_route_table.k8s-csye6225jinshuang-me.id
 }
 
 resource "aws_route" "route-__--0" {
   destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = aws_internet_gateway.k8s-csye6225jinshuang-me.id
+  gateway_id                  = "igw-00b0568d26ade0f60"
   route_table_id              = aws_route_table.k8s-csye6225jinshuang-me.id
 }
 
@@ -1166,7 +1346,7 @@ resource "aws_route_table" "k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/kops/role"                        = "public"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_route_table" "private-us-east-1a-k8s-csye6225jinshuang-me" {
@@ -1176,7 +1356,7 @@ resource "aws_route_table" "private-us-east-1a-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/kops/role"                        = "private-us-east-1a"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_route_table" "private-us-east-1b-k8s-csye6225jinshuang-me" {
@@ -1186,7 +1366,7 @@ resource "aws_route_table" "private-us-east-1b-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/kops/role"                        = "private-us-east-1b"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_route_table" "private-us-east-1c-k8s-csye6225jinshuang-me" {
@@ -1196,7 +1376,7 @@ resource "aws_route_table" "private-us-east-1c-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/kops/role"                        = "private-us-east-1c"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_route_table_association" "private-us-east-1a-k8s-csye6225jinshuang-me" {
@@ -1433,7 +1613,29 @@ resource "aws_security_group" "api-elb-k8s-csye6225jinshuang-me" {
     "Name"                                           = "api-elb.k8s.csye6225jinshuang.me"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
+}
+
+resource "aws_security_group" "bastion-elb-k8s-csye6225jinshuang-me" {
+  description = "Security group for bastion ELB"
+  name        = "bastion-elb.k8s.csye6225jinshuang.me"
+  tags = {
+    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
+    "Name"                                           = "bastion-elb.k8s.csye6225jinshuang.me"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+  vpc_id = "vpc-09bc9e6d215acaf78"
+}
+
+resource "aws_security_group" "bastion-k8s-csye6225jinshuang-me" {
+  description = "Security group for bastion"
+  name        = "bastion.k8s.csye6225jinshuang.me"
+  tags = {
+    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
+    "Name"                                           = "bastion.k8s.csye6225jinshuang.me"
+    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
+  }
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_security_group" "masters-k8s-csye6225jinshuang-me" {
@@ -1444,7 +1646,7 @@ resource "aws_security_group" "masters-k8s-csye6225jinshuang-me" {
     "Name"                                           = "masters.k8s.csye6225jinshuang.me"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_security_group" "nodes-k8s-csye6225jinshuang-me" {
@@ -1455,23 +1657,14 @@ resource "aws_security_group" "nodes-k8s-csye6225jinshuang-me" {
     "Name"                                           = "nodes.k8s.csye6225jinshuang.me"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
-resource "aws_security_group_rule" "from-0-0-0-0--0-ingress-tcp-22to22-masters-k8s-csye6225jinshuang-me" {
+resource "aws_security_group_rule" "from-0-0-0-0--0-ingress-tcp-22to22-bastion-elb-k8s-csye6225jinshuang-me" {
   cidr_blocks       = ["0.0.0.0/0"]
   from_port         = 22
   protocol          = "tcp"
-  security_group_id = aws_security_group.masters-k8s-csye6225jinshuang-me.id
-  to_port           = 22
-  type              = "ingress"
-}
-
-resource "aws_security_group_rule" "from-0-0-0-0--0-ingress-tcp-22to22-nodes-k8s-csye6225jinshuang-me" {
-  cidr_blocks       = ["0.0.0.0/0"]
-  from_port         = 22
-  protocol          = "tcp"
-  security_group_id = aws_security_group.nodes-k8s-csye6225jinshuang-me.id
+  security_group_id = aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id
   to_port           = 22
   type              = "ingress"
 }
@@ -1485,20 +1678,11 @@ resource "aws_security_group_rule" "from-0-0-0-0--0-ingress-tcp-443to443-api-elb
   type              = "ingress"
 }
 
-resource "aws_security_group_rule" "from-__--0-ingress-tcp-22to22-masters-k8s-csye6225jinshuang-me" {
+resource "aws_security_group_rule" "from-__--0-ingress-tcp-22to22-bastion-elb-k8s-csye6225jinshuang-me" {
   from_port         = 22
   ipv6_cidr_blocks  = ["::/0"]
   protocol          = "tcp"
-  security_group_id = aws_security_group.masters-k8s-csye6225jinshuang-me.id
-  to_port           = 22
-  type              = "ingress"
-}
-
-resource "aws_security_group_rule" "from-__--0-ingress-tcp-22to22-nodes-k8s-csye6225jinshuang-me" {
-  from_port         = 22
-  ipv6_cidr_blocks  = ["::/0"]
-  protocol          = "tcp"
-  security_group_id = aws_security_group.nodes-k8s-csye6225jinshuang-me.id
+  security_group_id = aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id
   to_port           = 22
   type              = "ingress"
 }
@@ -1528,6 +1712,69 @@ resource "aws_security_group_rule" "from-api-elb-k8s-csye6225jinshuang-me-egress
   security_group_id = aws_security_group.api-elb-k8s-csye6225jinshuang-me.id
   to_port           = 0
   type              = "egress"
+}
+
+resource "aws_security_group_rule" "from-bastion-elb-k8s-csye6225jinshuang-me-egress-all-0to0-0-0-0-0--0" {
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id
+  to_port           = 0
+  type              = "egress"
+}
+
+resource "aws_security_group_rule" "from-bastion-elb-k8s-csye6225jinshuang-me-egress-all-0to0-__--0" {
+  from_port         = 0
+  ipv6_cidr_blocks  = ["::/0"]
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id
+  to_port           = 0
+  type              = "egress"
+}
+
+resource "aws_security_group_rule" "from-bastion-elb-k8s-csye6225jinshuang-me-ingress-tcp-22to22-bastion-k8s-csye6225jinshuang-me" {
+  from_port                = 22
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.bastion-k8s-csye6225jinshuang-me.id
+  source_security_group_id = aws_security_group.bastion-elb-k8s-csye6225jinshuang-me.id
+  to_port                  = 22
+  type                     = "ingress"
+}
+
+resource "aws_security_group_rule" "from-bastion-k8s-csye6225jinshuang-me-egress-all-0to0-0-0-0-0--0" {
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion-k8s-csye6225jinshuang-me.id
+  to_port           = 0
+  type              = "egress"
+}
+
+resource "aws_security_group_rule" "from-bastion-k8s-csye6225jinshuang-me-egress-all-0to0-__--0" {
+  from_port         = 0
+  ipv6_cidr_blocks  = ["::/0"]
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion-k8s-csye6225jinshuang-me.id
+  to_port           = 0
+  type              = "egress"
+}
+
+resource "aws_security_group_rule" "from-bastion-k8s-csye6225jinshuang-me-ingress-tcp-22to22-masters-k8s-csye6225jinshuang-me" {
+  from_port                = 22
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.masters-k8s-csye6225jinshuang-me.id
+  source_security_group_id = aws_security_group.bastion-k8s-csye6225jinshuang-me.id
+  to_port                  = 22
+  type                     = "ingress"
+}
+
+resource "aws_security_group_rule" "from-bastion-k8s-csye6225jinshuang-me-ingress-tcp-22to22-nodes-k8s-csye6225jinshuang-me" {
+  from_port                = 22
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.nodes-k8s-csye6225jinshuang-me.id
+  source_security_group_id = aws_security_group.bastion-k8s-csye6225jinshuang-me.id
+  to_port                  = 22
+  type                     = "ingress"
 }
 
 resource "aws_security_group_rule" "from-masters-k8s-csye6225jinshuang-me-egress-all-0to0-0-0-0-0--0" {
@@ -1658,7 +1905,7 @@ resource "aws_security_group_rule" "icmpv6-pmtu-api-elb-__--0" {
 
 resource "aws_subnet" "us-east-1a-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1a"
-  cidr_block                                  = "172.20.32.0/19"
+  cidr_block                                  = "192.168.32.0/19"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
@@ -1670,12 +1917,12 @@ resource "aws_subnet" "us-east-1a-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/internal-elb"                = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_subnet" "us-east-1b-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1b"
-  cidr_block                                  = "172.20.64.0/19"
+  cidr_block                                  = "192.168.64.0/19"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
@@ -1687,12 +1934,12 @@ resource "aws_subnet" "us-east-1b-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/internal-elb"                = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_subnet" "us-east-1c-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1c"
-  cidr_block                                  = "172.20.96.0/19"
+  cidr_block                                  = "192.168.96.0/19"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
@@ -1704,12 +1951,12 @@ resource "aws_subnet" "us-east-1c-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/internal-elb"                = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_subnet" "utility-us-east-1a-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1a"
-  cidr_block                                  = "172.20.0.0/22"
+  cidr_block                                  = "192.168.0.0/22"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
@@ -1719,12 +1966,12 @@ resource "aws_subnet" "utility-us-east-1a-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/elb"                         = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_subnet" "utility-us-east-1b-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1b"
-  cidr_block                                  = "172.20.4.0/22"
+  cidr_block                                  = "192.168.4.0/22"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
@@ -1734,49 +1981,23 @@ resource "aws_subnet" "utility-us-east-1b-k8s-csye6225jinshuang-me" {
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/elb"                         = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 resource "aws_subnet" "utility-us-east-1c-k8s-csye6225jinshuang-me" {
   availability_zone                           = "us-east-1c"
-  cidr_block                                  = "172.20.8.0/22"
+  cidr_block                                  = "192.168.8.0/22"
   enable_resource_name_dns_a_record_on_launch = true
   private_dns_hostname_type_on_launch         = "resource-name"
   tags = {
     "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
     "Name"                                           = "utility-us-east-1c.k8s.csye6225jinshuang.me"
     "SubnetType"                                     = "Utility"
+    "kops.k8s.io/instance-group/bastions"            = "true"
     "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
     "kubernetes.io/role/elb"                         = "1"
   }
-  vpc_id = aws_vpc.k8s-csye6225jinshuang-me.id
-}
-
-resource "aws_vpc" "k8s-csye6225jinshuang-me" {
-  assign_generated_ipv6_cidr_block = true
-  cidr_block                       = "172.20.0.0/16"
-  enable_dns_hostnames             = true
-  enable_dns_support               = true
-  tags = {
-    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
-    "Name"                                           = "k8s.csye6225jinshuang.me"
-    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
-  }
-}
-
-resource "aws_vpc_dhcp_options" "k8s-csye6225jinshuang-me" {
-  domain_name         = "ec2.internal"
-  domain_name_servers = ["AmazonProvidedDNS"]
-  tags = {
-    "KubernetesCluster"                              = "k8s.csye6225jinshuang.me"
-    "Name"                                           = "k8s.csye6225jinshuang.me"
-    "kubernetes.io/cluster/k8s.csye6225jinshuang.me" = "owned"
-  }
-}
-
-resource "aws_vpc_dhcp_options_association" "k8s-csye6225jinshuang-me" {
-  dhcp_options_id = aws_vpc_dhcp_options.k8s-csye6225jinshuang-me.id
-  vpc_id          = aws_vpc.k8s-csye6225jinshuang-me.id
+  vpc_id = "vpc-09bc9e6d215acaf78"
 }
 
 terraform {

@@ -266,7 +266,7 @@ CloudProvider: aws
 ConfigBase: s3://jin-k8s-com-state-store/k8s.csye6225jinshuang.me
 InstanceGroupName: master-us-east-1a
 InstanceGroupRole: Master
-NodeupConfigHash: rmsccOYMRL15536RxoG96ijVvbIX+4XIAK7VH1adjqQ=
+NodeupConfigHash: /oJBorUq9PD5RxEyNHWmK75RTZdDjkaHytZDDlQgnyg=
 
 __EOF_KUBE_ENV
 

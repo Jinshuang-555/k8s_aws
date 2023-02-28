@@ -1,7 +1,7 @@
 apiVersion: kops.k8s.io/v1alpha2
 kind: Cluster
 metadata:
-  creationTimestamp: "2023-02-27T23:38:16Z"
+  creationTimestamp: "2023-02-28T21:38:31Z"
   name: k8s.csye6225jinshuang.me
 spec:
   api:
@@ -208,7 +208,8 @@ spec:
     shutdownGracePeriod: 30s
     shutdownGracePeriodCriticalPods: 10s
   masterPublicName: api.k8s.csye6225jinshuang.me
-  networkCIDR: 172.20.0.0/16
+  networkCIDR: 192.168.0.0/16
+  networkID: vpc-09bc9e6d215acaf78
   networking:
     canal: {}
   nonMasqueradeCIDR: 100.64.0.0/10
@@ -219,27 +220,27 @@ spec:
   - 0.0.0.0/0
   - ::/0
   subnets:
-  - cidr: 172.20.32.0/19
+  - cidr: 192.168.32.0/19
     name: us-east-1a
     type: Private
     zone: us-east-1a
-  - cidr: 172.20.64.0/19
+  - cidr: 192.168.64.0/19
     name: us-east-1b
     type: Private
     zone: us-east-1b
-  - cidr: 172.20.96.0/19
+  - cidr: 192.168.96.0/19
     name: us-east-1c
     type: Private
     zone: us-east-1c
-  - cidr: 172.20.0.0/22
+  - cidr: 192.168.0.0/22
     name: utility-us-east-1a
     type: Utility
     zone: us-east-1a
-  - cidr: 172.20.4.0/22
+  - cidr: 192.168.4.0/22
     name: utility-us-east-1b
     type: Utility
     zone: us-east-1b
-  - cidr: 172.20.8.0/22
+  - cidr: 192.168.8.0/22
     name: utility-us-east-1c
     type: Utility
     zone: us-east-1c
