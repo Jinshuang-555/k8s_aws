@@ -1,12 +1,13 @@
 # k8s_aws
 
-// ssh-keygen -t rsa -f ~/.ssh/k8s_key -P ""
+ssh-keygen -t rsa -f ~/.ssh/k8s_key -P ""
 
-export AWS_PROFILE=k8s_profile
-export AWS_REGION=us-east-1
+export AWS_REGION=us-east-1 
+export AWS_PROFILE=k8s
 
 export NAME=k8s.csye6225jinshuang.me
 export KOPS_STATE_STORE=s3://jin-k8s-com-state-store  
+export VPC_ID=k8s.csye6225jinshuang.me
 
 kops create cluster \
 --cloud=aws \
@@ -19,17 +20,24 @@ kops create cluster \
 --networking canal \
 --node-size=t3.medium \
 --master-size=t3.medium \
+--out=. \
+--target=terraform \
+--vpc=${VPC_ID}
 ${NAME}
+
+
+terraform init 
+terraform apply
 
 kops create secret sshpublickey admin -i ~/.ssh/k8s_key.pub --name ${NAME}
 
-kops update cluster ${NAME} --yes
+kops update cluster ${NAME} --yes --out=. --target=terraform 
 
 kops export kubecfg --admin
 
 kops validate cluster
 
-kops update cluster ${NAME} --yes
+kops update cluster ${NAME} --yes --out=. --target=terraform 
 
 kops validate cluster
 
@@ -37,7 +45,7 @@ grep server ~/.kube/config
 
 kops create instancegroup bastions --role Bastion --subnet utility-us-east-1c --name ${NAME}
 
-kops update cluster ${NAME} --yes
+kops update cluster ${NAME} --yes --out=. --target=terraform 
 
 kops validate cluster
 
