@@ -139,7 +139,7 @@ docker:
 kubeProxy:
   clusterCIDR: 100.96.0.0/11
   cpuRequest: 100m
-  image: registry.k8s.io/kube-proxy:v1.25.6@sha256:7461d0b2b2c9fe5b50c15acf9739cd6624e1ec1b07ae3877780035e0f436ad63
+  image: registry.k8s.io/kube-proxy:v1.25.8@sha256:ba15c8085615f87f59ddd3abdcca6289189b5d11f035f3373b3fc9afb7101620
   logLevel: 2
 kubelet:
   anonymousAuth: false
@@ -168,7 +168,7 @@ CloudProvider: aws
 ConfigBase: s3://jin-k8s-com-state-store/k8s.csye6225jinshuang.me
 InstanceGroupName: nodes-us-east-1a
 InstanceGroupRole: Node
-NodeupConfigHash: g9FWx2zWekfnWYSClIxd3AuzycOh/S2Oi+b5uhMry8M=
+NodeupConfigHash: 4Y1B+Y6Q/fZ3l4/cKCxbCxIEYCgK9gqYwZKjRyl9kiM=
 
 __EOF_KUBE_ENV
 

@@ -4,7 +4,7 @@
       "Action": "ec2:AttachVolume",
       "Condition": {
         "StringEquals": {
-          "aws:ResourceTag/KubernetesCluster": "k8s.csye6225jinshuang.me",
+          "aws:ResourceTag/KubernetesCluster": "cluster.csye6225jinshuang.me",
           "aws:ResourceTag/k8s.io/role/master": "1"
         }
       },
@@ -18,7 +18,7 @@
         "s3:Get*"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/k8s.csye6225jinshuang.me/*"
+      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/cluster.csye6225jinshuang.me/*"
     },
     {
       "Action": [
@@ -28,7 +28,7 @@
         "s3:PutObject"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/k8s.csye6225jinshuang.me/backups/etcd/main/*"
+      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/cluster.csye6225jinshuang.me/backups/etcd/main/*"
     },
     {
       "Action": [
@@ -38,7 +38,7 @@
         "s3:PutObject"
       ],
       "Effect": "Allow",
-      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/k8s.csye6225jinshuang.me/backups/etcd/events/*"
+      "Resource": "arn:aws:s3:::jin-k8s-com-state-store/cluster.csye6225jinshuang.me/backups/etcd/events/*"
     },
     {
       "Action": [
@@ -60,7 +60,7 @@
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:route53:::hostedzone/Z055749427SBZ7MX90UJW"
+        "arn:aws:route53:::hostedzone/Z016140630SGPQ3D8ZPX0"
       ]
     },
     {
@@ -86,7 +86,7 @@
       "Action": "ec2:CreateTags",
       "Condition": {
         "StringEquals": {
-          "aws:RequestTag/KubernetesCluster": "k8s.csye6225jinshuang.me",
+          "aws:RequestTag/KubernetesCluster": "cluster.csye6225jinshuang.me",
           "ec2:CreateAction": [
             "CreateVolume",
             "CreateSnapshot"
@@ -109,7 +109,7 @@
           "aws:RequestTag/KubernetesCluster": "true"
         },
         "StringEquals": {
-          "aws:ResourceTag/KubernetesCluster": "k8s.csye6225jinshuang.me"
+          "aws:ResourceTag/KubernetesCluster": "cluster.csye6225jinshuang.me"
         }
       },
       "Effect": "Allow",
@@ -122,7 +122,7 @@
       "Action": "ec2:CreateTags",
       "Condition": {
         "StringEquals": {
-          "aws:RequestTag/KubernetesCluster": "k8s.csye6225jinshuang.me",
+          "aws:RequestTag/KubernetesCluster": "cluster.csye6225jinshuang.me",
           "ec2:CreateAction": [
             "CreateSecurityGroup"
           ]
@@ -143,7 +143,7 @@
           "aws:RequestTag/KubernetesCluster": "true"
         },
         "StringEquals": {
-          "aws:ResourceTag/KubernetesCluster": "k8s.csye6225jinshuang.me"
+          "aws:ResourceTag/KubernetesCluster": "cluster.csye6225jinshuang.me"
         }
       },
       "Effect": "Allow",
@@ -227,7 +227,7 @@
       ],
       "Condition": {
         "StringEquals": {
-          "aws:ResourceTag/KubernetesCluster": "k8s.csye6225jinshuang.me"
+          "aws:ResourceTag/KubernetesCluster": "cluster.csye6225jinshuang.me"
         }
       },
       "Effect": "Allow",
@@ -244,7 +244,7 @@
       ],
       "Condition": {
         "StringEquals": {
-          "aws:RequestTag/KubernetesCluster": "k8s.csye6225jinshuang.me"
+          "aws:RequestTag/KubernetesCluster": "cluster.csye6225jinshuang.me"
         }
       },
       "Effect": "Allow",

@@ -172,7 +172,7 @@ kubeAPIServer:
   featureGates:
     CSIMigrationAWS: "true"
     InTreePluginAWSUnregister: "true"
-  image: registry.k8s.io/kube-apiserver:v1.25.8@sha256:5263ad23e67f5b0cac3e2d817ba3505023cac4766294fd6bc314646a3dc99750
+  image: registry.k8s.io/kube-apiserver:v1.25.7@sha256:bed3b7de84c9d03d3f30d52568077210dcbb164f0d0e8228b7169331b1aa18ef
   kubeletPreferredAddressTypes:
   - InternalIP
   - Hostname
@@ -187,8 +187,8 @@ kubeAPIServer:
   requestheaderUsernameHeaders:
   - X-Remote-User
   securePort: 443
-  serviceAccountIssuer: https://api.internal.k8s.csye6225jinshuang.me
-  serviceAccountJWKSURI: https://api.internal.k8s.csye6225jinshuang.me/openid/v1/jwks
+  serviceAccountIssuer: https://api.internal.cluster.csye6225jinshuang.me
+  serviceAccountJWKSURI: https://api.internal.cluster.csye6225jinshuang.me/openid/v1/jwks
   serviceClusterIPRange: 100.64.0.0/13
   storageBackend: etcd3
 kubeControllerManager:
@@ -196,12 +196,12 @@ kubeControllerManager:
   attachDetachReconcileSyncPeriod: 1m0s
   cloudProvider: external
   clusterCIDR: 100.96.0.0/11
-  clusterName: k8s.csye6225jinshuang.me
+  clusterName: cluster.csye6225jinshuang.me
   configureCloudRoutes: false
   featureGates:
     CSIMigrationAWS: "true"
     InTreePluginAWSUnregister: "true"
-  image: registry.k8s.io/kube-controller-manager:v1.25.8@sha256:5ffb31d2d388497653f7cacbd9c60b0e41c3a35af0f0aeb3ddbf1e3790728309
+  image: registry.k8s.io/kube-controller-manager:v1.25.7@sha256:12d0c4cca129fd24a7b2e050bc67d2a4a6059cafa06a2b84bd86b081f89a9b82
   leaderElection:
     leaderElect: true
   logLevel: 2
@@ -209,13 +209,13 @@ kubeControllerManager:
 kubeProxy:
   clusterCIDR: 100.96.0.0/11
   cpuRequest: 100m
-  image: registry.k8s.io/kube-proxy:v1.25.8@sha256:ba15c8085615f87f59ddd3abdcca6289189b5d11f035f3373b3fc9afb7101620
+  image: registry.k8s.io/kube-proxy:v1.25.7@sha256:673a1b3cee0d57d78e91c33ff488afb13f09f968b8750ecf0a0eabec6f5a93eb
   logLevel: 2
 kubeScheduler:
   featureGates:
     CSIMigrationAWS: "true"
     InTreePluginAWSUnregister: "true"
-  image: registry.k8s.io/kube-scheduler:v1.25.8@sha256:a8d6d205caa63d8891cc8cdcaef539afa37136effa912056277a90daf100946d
+  image: registry.k8s.io/kube-scheduler:v1.25.7@sha256:556cc202a64cde3c84a2e11be976eec8514966d961b4339cb299bfd5a71835de
   leaderElection:
     leaderElect: true
   logLevel: 2
@@ -263,10 +263,10 @@ __EOF_CLUSTER_SPEC
 
 cat > conf/kube_env.yaml << '__EOF_KUBE_ENV'
 CloudProvider: aws
-ConfigBase: s3://jin-k8s-com-state-store/k8s.csye6225jinshuang.me
-InstanceGroupName: master-us-east-1b
+ConfigBase: s3://jin-k8s-com-state-store/cluster.csye6225jinshuang.me
+InstanceGroupName: master-us-east-1a
 InstanceGroupRole: Master
-NodeupConfigHash: 0IYVA9BBxHsWa+nkqe7U5icKyHucNVNLLLydns1LgVQ=
+NodeupConfigHash: mmRE901TEgIn3J/vBFBekNTByH3M0M9KJbvpcPbQZvM=
 
 __EOF_KUBE_ENV
 

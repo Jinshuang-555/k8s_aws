@@ -1,42 +1,42 @@
 Assets:
   amd64:
-  - 8485ac4a60455b77a9b518c13b3aeb0d32338ab7e9894a0b5d217fea585cd2be@https://storage.googleapis.com/kubernetes-release/release/v1.25.6/bin/linux/amd64/kubelet
-  - ba876aef0e9d7e2e8fedac036ec194de5ec9b6d2953e30ff82a2758c6ba32174@https://storage.googleapis.com/kubernetes-release/release/v1.25.6/bin/linux/amd64/kubectl
+  - 3aa821165da6f1bb9fdb82a91b294b7f4abfc4fdfb21a94fa1e09a9785876516@https://storage.googleapis.com/kubernetes-release/release/v1.25.8/bin/linux/amd64/kubelet
+  - 80e70448455f3d19c3cb49bd6ff6fc913677f4f240d368fa2b9f0d400c8cd16e@https://storage.googleapis.com/kubernetes-release/release/v1.25.8/bin/linux/amd64/kubectl
   - 962100bbc4baeaaa5748cdbfce941f756b1531c2eadb290129401498bfac21e7@https://storage.googleapis.com/k8s-artifacts-cni/release/v0.9.1/cni-plugins-linux-amd64-v0.9.1.tgz
   - dd1f4730daf728822aea3ba35a440e14b1dfa8f1db97288a59a8666676a13637@https://github.com/containerd/containerd/releases/download/v1.6.10/containerd-1.6.10-linux-amd64.tar.gz
   - db772be63147a4e747b4fe286c7c16a2edc4a8458bd3092ea46aaee77750e8ce@https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.amd64
   arm64:
-  - 6dade59b6fe4b94f03ee173692f5713e023b0cd1abaa8f5ebe4263b49a63df38@https://storage.googleapis.com/kubernetes-release/release/v1.25.6/bin/linux/arm64/kubelet
-  - 1a4e2850e94d44039c73eae7a6e005b3e1435c00a62bd58df7643bdeb8475cfd@https://storage.googleapis.com/kubernetes-release/release/v1.25.6/bin/linux/arm64/kubectl
+  - 6c995b05b54cc0ce4eb6bf3097565167069b2ce45ba965972430c631c467d239@https://storage.googleapis.com/kubernetes-release/release/v1.25.8/bin/linux/arm64/kubelet
+  - 28cf5f666cb0c11a8a2b3e5ae4bf93e56b74ab6051720c72bb231887bfc1a7c6@https://storage.googleapis.com/kubernetes-release/release/v1.25.8/bin/linux/arm64/kubectl
   - ef17764ffd6cdcb16d76401bac1db6acc050c9b088f1be5efa0e094ea3b01df0@https://storage.googleapis.com/k8s-artifacts-cni/release/v0.9.1/cni-plugins-linux-arm64-v0.9.1.tgz
   - 6d655e80a843f480e1c1cead18479185251581ff2d4a2e2e5eb88ad5b5e3d937@https://github.com/containerd/containerd/releases/download/v1.6.10/containerd-1.6.10-linux-arm64.tar.gz
   - dbb71e737eaef454a406ce21fd021bd8f1b35afb7635016745992bbd7c17a223@https://github.com/opencontainers/runc/releases/download/v1.1.4/runc.arm64
 CAs:
   kubernetes-ca: |
     -----BEGIN CERTIFICATE-----
-    MIIC+DCCAeCgAwIBAgIMF0gazmlJ72CShFqJMA0GCSqGSIb3DQEBCwUAMBgxFjAU
-    BgNVBAMTDWt1YmVybmV0ZXMtY2EwHhcNMjMwMjI2MjEzODU1WhcNMzMwMjI1MjEz
-    ODU1WjAYMRYwFAYDVQQDEw1rdWJlcm5ldGVzLWNhMIIBIjANBgkqhkiG9w0BAQEF
-    AAOCAQ8AMIIBCgKCAQEAtWfXXkozkHE2sHHhfT487jghYt7h+TaKBWFYcWd90rix
-    J8efsP9BoJQo6pWnX3LZzCgDPZ+VmGZGOhGQW4X5OPQWeJbh0SdGlat0bV02MKBC
-    yfwfGLM/bHKX4BYI9xxlEwX4KdiZokKUC4dCZXcI/K3PtSbhgJnGRisRQ1TSayAf
-    nTPQqXp8aO3NVWKUdNDS7hP1O8zHZT2+lg7qy9jBSw7YbmlXq5y2i6Szk9oM6KP9
-    3QiODNOCfXH0iTEIEfwvLvTSSX1oBPMz1wSMOVecCACGyylOdyfpgmnMwqDddw7e
-    beZLme3zQFokUK3oaXeQh7mj0eniVc6H1GmB/6NR3wIDAQABo0IwQDAOBgNVHQ8B
-    Af8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU0yB/Ez0ztHJzNumM
-    BT4XaVIIwqkwDQYJKoZIhvcNAQELBQADggEBAJ/zUHIGQJIk3X4/8eD70lMzg38C
-    U76DANqYqdn8JnnzItSMQ6VrMpvoUDcjTFES8tlqjEr8zdF6ib/xeI9rKM95PVXh
-    cBc6r8Njvgc5Nmq2VSG0ZbUQd9t1q9QUz6gd1G7WGN+D4pVDyN24VL97QyZefl3I
-    IB3pzdB6lvH3/oA7uYk01ir6IDaG7BFdsyTHs/rPON7GOtdPmKdHX5g/0PWCQ7h8
-    DF49RXuVeDKnlIIwShahbOpD+RTnQNTCKUggy/1+A/52GEFISHGVbAq5Ngx3vsBj
-    74ZZoAS9XlUfUeJIC70hyMyt1woHw/IrTJyxzdSPLbCp68lYNgRHA/b2O68=
+    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
     -----END CERTIFICATE-----
 ClusterName: k8s.csye6225jinshuang.me
 Hooks:
 - null
 - null
 KeypairIDs:
-  kubernetes-ca: "7205324474047881921528355465"
+  kubernetes-ca: "7224930636312335772399822979"
 KubeletConfig:
   anonymousAuth: false
   cgroupDriver: systemd

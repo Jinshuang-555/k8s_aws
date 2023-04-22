@@ -40,7 +40,7 @@ spec:
       - args:
         - --watch-ingress=false
         - --dns=aws-route53
-        - --zone=*/Z055749427SBZ7MX90UJW
+        - --zone=*/Z016140630SGPQ3D8ZPX0
         - --internal-ipv4
         - --zone=*/*
         - -v=2

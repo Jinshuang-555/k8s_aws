@@ -21,3 +21,20 @@ spec:
   - name: schema-migration
     image: jinshuangniu/advanced1cloud1computing:db-1677781554
     command: ["flyway", "migrate"]
+    volumeMounts:
+    - name: ssh-key
+      mountPath: /root/.ssh
+  restartPolicy: Always
+
+  volumes:
+  - name: ssh-key
+    secret:
+      secretName: ssh-key-secret
+      items:
+      - key: ssh-privatekey
+        path: 
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  nodeSelector:
+    bastion: "true"
+---

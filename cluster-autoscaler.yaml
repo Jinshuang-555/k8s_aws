@@ -1,0 +1,18 @@
+apiVersion: autoscaling/v1
+kind: ClusterAutoscaler
+metadata:
+  name: cluster-autoscaler
+spec:
+  scaleDownEnabled: true
+  scaleDownDelayAfterAdd: 10m
+  scaleDownDelayAfterDelete: 10m
+  scaleDownUnneededTime: 5m
+  scaleUpDelayAfterAdd: 5m
+  scaleUpUnscheduledPodCount: 5
+  expander: least-waste
+  nodeGroups:
+  - name: worker-group
+    minSize: 3
+    maxSize: 6
+    # instancesDistribution:
+    #   instanceTypes: ["t3.medium"]
